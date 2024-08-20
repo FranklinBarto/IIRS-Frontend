@@ -1,4 +1,5 @@
 import React from 'react';
+import Globe from '../Components/globe';
 
 const HomePage = () => {
   return (
@@ -25,12 +26,11 @@ const HomePage = () => {
       <main className="container mx-auto px-4 py-12">
         <div className="flex items-center">
           <div className="w-1/2">
-            <p className="text-pink-500 mb-2">Branding and Identity</p>
-            <h1 className="text-6xl font-bold mb-6">Rubber Design</h1>
-            <button className="bg-black text-white px-6 py-2">EXPLORE WORK</button>
+            <h1 className="text-6xl font-bold mb-6">New Geoportal</h1>
+            <button className="bg-black text-white px-6 py-2">View Data</button>
           </div>
           <div className="w-1/2">
-            <img src="/path-to-bottle-image.jpg" alt="The Wolf bottle" className="w-full" />
+            <Globe/>
           </div>
         </div>
       </main>
