@@ -8,45 +8,6 @@ import TileWMS from "ol/source/TileWMS";
 import menuIcon from "../Assets/menu.png";
 import Navbar from "../Components/navbar";
 
-// const sampleData = [
-//   {
-//     fields: {
-//       Title: "Flood Event in Nairobi",
-//       Location: "Nairobi, Kenya",
-//       Summary: "Severe flooding occurred in Nairobi causing major disruptions.",
-//       Flooding_date: "2024-08-15",
-//       Products: "GTOPO30_SAMPLE",
-//     },
-//   },
-//   {
-//     fields: {
-//       Title: "Flood Event in Mombasa",
-//       Location: "Mombasa, Kenya",
-//       Summary: "Coastal flooding affected large areas of Mombasa.",
-//       Flooding_date: "2024-07-22",
-//       Products: "airports",
-//     },
-//   },
-//   {
-//     fields: {
-//       Title: "Flood Event in Kisumu",
-//       Location: "Kisumu, Kenya",
-//       Summary: "Heavy rains caused flooding in Kisumu and surrounding areas.",
-//       Flooding_date: "2024-06-30",
-//       Products: "flood_data_kisumu",
-//     },
-//   },
-//   {
-//     fields: {
-//       Title: "Flood Event in Eldoret",
-//       Location: "Eldoret, Kenya",
-//       Summary: "Eldoret experienced flash floods after unexpected heavy rains.",
-//       Flooding_date: "2024-05-12",
-//       Products: "flood_data_eldoret",
-//     },
-//   },
-// ];
-
 function Visualisation() {
   const [selectedLayer, setSelectedLayer] = useState(null);
   const [mapLeft, setMapLeft] = useState(null);
@@ -62,9 +23,17 @@ function Visualisation() {
   const [legendUrl, setLegendUrl] = useState(null);
   const [legendError, setLegendError] = useState(null);
 
+  // const fetchLegend = () => {
+  //   if (selectedLayer) {
+  //     const legendUrl = `http://localhost:8182/cgi-bin/mapserv?map=/map/generic.map&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=${selectedLayer.layer}&FORMAT=image/png&SLD_VERSION=1.1.0`;
+  //     setLegendUrl(legendUrl);
+  //     setLegendError(null); // Reset error state
+  //   }
+  // };
+
   const fetchLegend = () => {
     if (selectedLayer) {
-      const legendUrl = `http://localhost:8182/cgi-bin/mapserv?map=/map/generic.map&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=${selectedLayer.layer}&FORMAT=image/png&SLD_VERSION=1.1.0`;
+      const legendUrl = `http://localhost:8600/geoserver/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=${selectedLayer.layer}&FORMAT=image/png&SLD_VERSION=1.1.0`;
       setLegendUrl(legendUrl);
       setLegendError(null); // Reset error state
     }
@@ -93,17 +62,18 @@ function Visualisation() {
     );
   }
 
+
   const getLayers = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8182/cgi-bin/mapserv?map=/map/generic.map&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+        "http://localhost:8600/geoserver/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
       );
       const xmlText = await response.text();
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "application/xml");
-
+  
       const layers = xmlDoc.getElementsByTagName("Layer");
-
+  
       let Arr = [];
       Array.from(layers).forEach((item) => {
         let fields = {};
@@ -111,7 +81,6 @@ function Visualisation() {
         fields.title = item.getElementsByTagName("Title")[0]?.textContent;
         Arr.push({ fields: fields });
       });
-
       return Arr;
     } catch (error) {
       console.log(error);
@@ -208,75 +177,94 @@ function Visualisation() {
   }, []);
 
  
-  const getLayerExtents = async (url) => {
+  const getLayerExtent = async (url) => {
     try {
       // Fetch the GetCapabilities document
       const response = await fetch(
-        `${url}&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities`
+        `${url}/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities`
       );
       const xmlText = await response.text();
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "application/xml");
-
+  
       // Extract extents for the specific layer
       const layers = xmlDoc.getElementsByTagName("Layer");
-      const extents = Array.from(layers)
-        .map((layer) => {
-          const name = layer.getElementsByTagName("Name")[0]?.textContent;
-          const bbox = layer.getElementsByTagName("BoundingBox")[0];
-          if (name === selectedLayer.layer && bbox) {
-            return {
-              name,
-              extent: {
-                minx: parseFloat(bbox.getAttribute("minx")),
-                miny: parseFloat(bbox.getAttribute("miny")),
-                maxx: parseFloat(bbox.getAttribute("maxx")),
-                maxy: parseFloat(bbox.getAttribute("maxy")),
-              },
-            };
-          }
-          return null;
-        })
-        .filter((ext) => ext !== null);
-
-      return extents;
+      const layer = Array.from(layers).find((l) => {
+        const name = l.getElementsByTagName("Name")[0]?.textContent;
+        return name === selectedLayer.layer;
+      });
+  
+      if (layer) {
+        console.log(layer)
+        const bbox = layer.getElementsByTagName("BoundingBox")[0];
+        if (bbox) {
+          return {
+            minx: parseFloat(bbox.getAttribute("minx")),
+            miny: parseFloat(bbox.getAttribute("miny")),
+            maxx: parseFloat(bbox.getAttribute("maxx")),
+            maxy: parseFloat(bbox.getAttribute("maxy")),
+          };
+        }
+      }
+  
+      return null;
     } catch (error) {
       console.error("Error fetching or parsing GetCapabilities:", error);
+      return null;
     }
   };
 
   useEffect(() => {
     if (selectedLayer && mapRight) {
+      // const wmsLayer = new TileLayer({
+      //   source: new TileWMS({
+      //     url: "http://localhost:8182/cgi-bin/mapserv",
+      //     params: {
+      //       map: "/map/generic.map",
+      //       SERVICE: "WMS",
+      //       VERSION: "1.3.0",
+      //       REQUEST: "GetMap",
+      //       LAYERS: selectedLayer.layer,
+      //       STYLES: "",
+      //       // 'STYLES': `sld:${sldUrl}`, // Apply SLD
+      //       CRS: "EPSG:4326",
+      //       FORMAT: "image/png",
+      //       TRANSPARENT: true,
+      //     },
+      //     serverType: "mapserver",
+      //   }),
+      // });
+
       const wmsLayer = new TileLayer({
         source: new TileWMS({
-          url: "http://localhost:8182/cgi-bin/mapserv",
+          url: "http://localhost:8600/geoserver/wms",
           params: {
-            map: "/map/generic.map",
-            SERVICE: "WMS",
-            VERSION: "1.3.0",
-            REQUEST: "GetMap",
             LAYERS: selectedLayer.layer,
             STYLES: "",
             CRS: "EPSG:4326",
             FORMAT: "image/png",
             TRANSPARENT: true,
           },
-          serverType: "mapserver",
+          serverType: "geoserver",
         }),
       });
 
       // Usage
-      const url = "http://localhost:8182/cgi-bin/mapserv?map=/map/generic.map";
-
-      getLayerExtents(url).then((extent) => {
+      const url = "http://localhost:8600/geoserver";
+      
+      getLayerExtent(url).then((extent) => {
         if (extent) {
-          let extDict = extent[0].extent;
-          let extArr = [extDict.minx, extDict.miny, extDict.maxx, extDict.maxy];
-
+          console.log("Layer extent:", extent);
+          let extArr = [extent.minx, extent.miny, extent.maxx, extent.maxy];
+      
+          // Transform the extent from EPSG:4326 (WGS84) to EPSG:3857 (Spherical Mercator)
           const extent3857 = transformExtent(extArr, "EPSG:4326", "EPSG:3857");
-
+      
+          // Fit the map views to the transformed extent
           mapRight.getView().fit(extent3857, { size: mapRight.getSize() });
           mapLeft.getView().fit(extent3857, { size: mapLeft.getSize() });
+        } else {
+          console.error("Failed to retrieve layer extent");
         }
       });
 
@@ -377,6 +365,7 @@ function Visualisation() {
             <div className="title">
               <span>Active Dataset</span>
               <h1>{selectedLayer?.title}</h1>
+              <h1>{selectedLayer?.layer}</h1>
             </div>
           )
         }
