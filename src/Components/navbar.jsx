@@ -6,13 +6,13 @@ export default function Navbar(){
             <div className="text-2xl font-bold">IIRS Portal</div>
             <nav>
                 <ul className="flex space-x-4 lg:space-x-6">
-                    <li class="text-xl font-semibold tracking-wide">
+                    <li className="text-xl font-semibold tracking-wide">
                         <a href={`/`}>Home</a>
                     </li>
-                    <li class="text-xl font-semibold tracking-wide">
+                    <li className="text-xl font-semibold tracking-wide">
                         <a href={`/visualization`}>View&nbsp;Data</a>
                     </li>
-                    <li class="text-xl font-semibold tracking-wide">
+                    <li className="text-xl font-semibold tracking-wide">
                         <a href={`/analysis`}>AHP&nbsp;Tool</a>
                     </li>
                 </ul>
