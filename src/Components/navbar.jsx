@@ -2,8 +2,8 @@ import React from "react";
 
 export default function Navbar(){
     return (
-        <header className="container mx-auto px-4 py-6 flex justify-between items-center">
-            <div className="text-2xl font-bold">IIRS Portal</div>
+        <header className="p-4 flex justify-between items-center z-10 bg-gray-100 w-full">
+            <div className="text-2xl font-bold">Kenya - IIRS Portal</div>
             <nav>
                 <ul className="flex space-x-4 lg:space-x-6">
                     <li class="text-xl font-semibold tracking-wide">
