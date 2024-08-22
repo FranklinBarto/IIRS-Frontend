@@ -13,7 +13,7 @@ export default function Navbar(){
                         <a href={`/visualization`}>View&nbsp;Data</a>
                     </li>
                     <li className="text-xl font-semibold tracking-wide">
-                        <a href={`/analysis`}>AHP&nbsp;Tool</a>
+                        <a href={`/suitability`}>AHP&nbsp;Tool</a>
                     </li>
                 </ul>
             </nav>
