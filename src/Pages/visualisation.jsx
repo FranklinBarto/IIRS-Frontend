@@ -79,7 +79,9 @@ function Visualisation() {
         let fields = {};
         fields.layer = item.getElementsByTagName("Name")[0]?.textContent;
         fields.title = item.getElementsByTagName("Title")[0]?.textContent;
-        Arr.push({ fields: fields });
+        if(fields.title){
+          Arr.push({ fields: fields });
+        }
       });
       return Arr;
     } catch (error) {
@@ -189,9 +191,12 @@ function Visualisation() {
   
       // Extract extents for the specific layer
       const layers = xmlDoc.getElementsByTagName("Layer");
-      const layer = Array.from(layers).find((l) => {
+      let layer
+      Array.from(layers).find((l) => {
         const name = l.getElementsByTagName("Name")[0]?.textContent;
-        return name === selectedLayer.layer;
+        if(name === selectedLayer.layer){
+         layer=l
+        }
       });
   
       if (layer) {
@@ -365,11 +370,9 @@ function Visualisation() {
             <div className="title">
               <span>Active Dataset</span>
               <h1>{selectedLayer?.title}</h1>
-              <h1>{selectedLayer?.layer}</h1>
             </div>
           )
         }
-
 
         <Legend url={legendUrl} error={legendError} />
         
@@ -409,8 +412,8 @@ function Visualisation() {
           value={basemap}
           onChange={handleBasemapChange}
         >
-          <option value="osm">OpenStreetMap</option>
-          <option value="arcgis">ArcGIS Satellite</option>
+          <option value="arcgis">Satellite view</option>
+          <option value="osm">Street View</option>
         </select>
 
         <div
