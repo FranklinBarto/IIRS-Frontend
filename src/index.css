@@ -240,3 +240,17 @@ span,p,h1,h2,h3{
         height: 30vh;
     }
 }
+
+.overlay-form {
+    position: absolute;
+    top: 80px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 300px;
+    z-index: 100;
+    overflow: auto;
+    text-align: left;
+}

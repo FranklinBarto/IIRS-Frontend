@@ -1,0 +1,15 @@
+POST http://172.27.4.136:8000/api
+Content-Type: application/json
+
+{
+    "lulc": "0.3",
+    "aspect": "0.4",
+    "slope": "0.4",
+    "chours": "0.3",
+    "temperature": "0.3",
+    "sdepth": "0.4",
+    "stexture": "0.5",
+    "elevation": "0.6",
+    "rainfall": "1.6",
+    "soil": "0.2"
+}
